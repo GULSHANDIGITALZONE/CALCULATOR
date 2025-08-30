@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calculator</title>
+  <title>Responsive Calculator</title>
   <style>
     body {
       background: #f0f0f0;
@@ -12,58 +12,107 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
 
     .calculator {
       background: #222;
       padding: 20px;
-      border-radius: 10px;
+      border-radius: 15px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 360px;
     }
 
     .display {
       background: #000;
       color: #0f0;
-      font-size: 2em;
       padding: 10px;
-      text-align: right;
-      border-radius: 5px;
+      border-radius: 8px;
       margin-bottom: 15px;
+      word-wrap: break-word;
+    }
+
+    .input-line {
+      font-size: 1.2em;
+      color: #aaa;
+      min-height: 24px;
+    }
+
+    .result-line {
+      font-size: 2em;
+      color: #0f0;
+      min-height: 40px;
+      text-align: right;
     }
 
     .buttons {
       display: grid;
-      grid-template-columns: repeat(4, 60px);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
     }
 
     button {
-      font-size: 1.5em;
-      padding: 10px;
+      font-size: 1.2em;
+      padding: 15px;
       background: #333;
       color: #fff;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: 0.2s;
     }
 
-    button:active {
+    button:active { background: #555; }
+
+    .equals { background: #0a0; }
+    .clear { background: #a00; }
+    .backspace { background: #c60; }
+
+    .extra-functions { display: none; margin-top: 10px; }
+    .extra-functions.show { display: grid; }
+
+    .history {
+      margin-top: 15px;
+      background: #111;
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 0.9em;
+    }
+
+    .history-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 0;
+      padding: 4px;
+      background: #222;
+      border-radius: 5px;
+    }
+
+    .copy-btn {
+      font-size: 0.8em;
+      padding: 4px 6px;
       background: #555;
     }
 
-    .equals {
-      background: #0a0;
-      color: #fff;
-    }
-
-    .clear {
-      background: #a00;
+    @media (max-width: 480px) {
+      .input-line { font-size: 1em; }
+      .result-line { font-size: 1.5em; }
+      button { font-size: 1em; padding: 10px; }
     }
   </style>
 </head>
 <body>
   <div class="calculator">
-    <div id="display" class="display">0</div>
+    <div class="display">
+      <div id="inputLine" class="input-line"></div>
+      <div id="resultLine" class="result-line">0</div>
+    </div>
+
     <div class="buttons">
       <button onclick="press('7')">7</button>
       <button onclick="press('8')">8</button>
@@ -85,31 +134,104 @@
       <button onclick="calculate()" class="equals">=</button>
       <button onclick="press('+')">+</button>
 
-      <button onclick="clearDisplay()" class="clear" style="grid-column: span 4;">C</button>
+      <button onclick="clearDisplay()" class="clear">C</button>
+      <button onclick="backspace()" class="backspace">⌫</button>
+      <button onclick="toggleExtra()">More</button>
+      <button onclick="clearHistory()">Clear History</button>
     </div>
+
+    <div id="extra" class="buttons extra-functions">
+      <button onclick="press('%')">%</button>
+      <button onclick="square()">x²</button>
+      <button onclick="sqrt()">√x</button>
+    </div>
+
+    <div id="history" class="history"></div>
   </div>
 
   <script>
-    let display = document.getElementById("display");
+    let inputLine = document.getElementById("inputLine");
+    let resultLine = document.getElementById("resultLine");
+    let historyDiv = document.getElementById("history");
+    let extraDiv = document.getElementById("extra");
 
     function press(value) {
-      if (display.innerText === "0") {
-        display.innerText = value;
+      if (resultLine.innerText === "0" || resultLine.innerText === "Error") {
+        resultLine.innerText = value;
       } else {
-        display.innerText += value;
+        resultLine.innerText += value;
       }
+      inputLine.innerText = resultLine.innerText;
     }
 
     function calculate() {
       try {
-        display.innerText = eval(display.innerText);
+        let result = eval(resultLine.innerText);
+        inputLine.innerText = resultLine.innerText;
+        addHistory(inputLine.innerText + " = " + result);
+        resultLine.innerText = result;
       } catch {
-        display.innerText = "Error";
+        resultLine.innerText = "Error";
       }
     }
 
     function clearDisplay() {
-      display.innerText = "0";
+      inputLine.innerText = "";
+      resultLine.innerText = "0";
+    }
+
+    function backspace() {
+      if (resultLine.innerText.length > 1) {
+        resultLine.innerText = resultLine.innerText.slice(0, -1);
+      } else {
+        resultLine.innerText = "0";
+      }
+      inputLine.innerText = resultLine.innerText;
+    }
+
+    function toggleExtra() {
+      extraDiv.classList.toggle("show");
+    }
+
+    function square() {
+      try {
+        let val = eval(resultLine.innerText);
+        let result = val * val;
+        inputLine.innerText = val + "²";
+        addHistory(inputLine.innerText + " = " + result);
+        resultLine.innerText = result;
+      } catch {
+        resultLine.innerText = "Error";
+      }
+    }
+
+    function sqrt() {
+      try {
+        let val = eval(resultLine.innerText);
+        let result = Math.sqrt(val);
+        inputLine.innerText = "√" + val;
+        addHistory(inputLine.innerText + " = " + result);
+        resultLine.innerText = result;
+      } catch {
+        resultLine.innerText = "Error";
+      }
+    }
+
+    function addHistory(entry) {
+      let div = document.createElement("div");
+      div.className = "history-entry";
+      div.innerHTML = `<span>${entry}</span>
+        <button class="copy-btn" onclick="copyText('${entry}')">📋</button>`;
+      historyDiv.prepend(div);
+    }
+
+    function clearHistory() {
+      historyDiv.innerHTML = "";
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert("Copied: " + text);
     }
   </script>
 </body>
