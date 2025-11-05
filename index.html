@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Responsive Calculator</title>
+  <title>Calculator + Age Calc</title>
+  
   <style>
     body {
       background: #f0f0f0;
@@ -21,7 +22,7 @@
       border-radius: 15px;
       box-shadow: 0 10px 20px rgba(0,0,0,0.3);
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
     }
 
     .display {
@@ -34,13 +35,13 @@
     }
 
     .input-line {
-      font-size: 1.2em;
+      font-size: 1.1em;
       color: #aaa;
-      min-height: 24px;
+      min-height: 22px;
     }
 
     .result-line {
-      font-size: 2em;
+      font-size: 1.8em;
       color: #0f0;
       min-height: 40px;
       text-align: right;
@@ -53,14 +54,14 @@
     }
 
     button {
-      font-size: 1.2em;
-      padding: 15px;
+      font-size: 1.05em;
+      padding: 12px;
       background: #333;
       color: #fff;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      transition: 0.2s;
+      transition: 0.15s;
     }
 
     button:active { background: #555; }
@@ -69,11 +70,31 @@
     .clear { background: #a00; }
     .backspace { background: #c60; }
 
-    .extra-functions { display: none; margin-top: 10px; }
+    .extra-functions { display: none; margin-top: 10px; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .extra-functions.show { display: grid; }
 
+    .age-panel {
+      display: none;
+      margin-top: 10px;
+      background: #111;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .age-panel.show { display: block; }
+
+    .age-row { display:flex; gap:8px; margin-bottom:8px; }
+    .age-row input {
+      flex:1;
+      padding:8px;
+      border-radius:6px;
+      border:1px solid #444;
+      background:#222;
+      color:#fff;
+    }
+
     .history {
-      margin-top: 15px;
+      margin-top: 12px;
       background: #111;
       color: #fff;
       padding: 10px;
@@ -88,7 +109,7 @@
       justify-content: space-between;
       align-items: center;
       margin: 4px 0;
-      padding: 4px;
+      padding: 6px;
       background: #222;
       border-radius: 5px;
     }
@@ -101,13 +122,14 @@
 
     @media (max-width: 480px) {
       .input-line { font-size: 1em; }
-      .result-line { font-size: 1.5em; }
-      button { font-size: 1em; padding: 10px; }
+      .result-line { font-size: 1.4em; }
+      button { font-size: 0.95em; padding: 10px; }
+      .extra-functions { grid-template-columns: repeat(2,1fr); }
     }
   </style>
 </head>
 <body>
-   <!-- 🌟 Loading Screen Start -->
+  <!-- Loading Overlay -->
   <div id="loading-overlay">
     <div class="loader-content">
       <div class="spinner"></div>
@@ -116,7 +138,6 @@
   </div>
 
   <style>
-    /* ===== Loading Overlay ===== */
     #loading-overlay {
       position: fixed;
       inset: 0;
@@ -127,40 +148,19 @@
       z-index: 9999;
       transition: opacity 0.3s ease;
     }
-    .loader-content {
-      text-align: center;
-      font-family: "Segoe UI", sans-serif;
-    }
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 6px solid rgba(0, 0, 0, 0.1);
-      border-top-color: #0073e6;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 12px;
-    }
-    .loading-text {
-      font-size: 18px;
-      color: #333;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    .loader-content { text-align: center; font-family: "Segoe UI", sans-serif; }
+    .spinner { width: 48px; height: 48px; border-radius: 50%; border: 5px solid rgba(0,0,0,0.08); border-top-color:#0073e6; animation: spin 1s linear infinite; margin:0 auto 8px; }
+    .loading-text { font-size: 16px; color: #333; font-weight:600; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 
   <script>
-    // जब पेज पूरा लोड हो जाएगा तब Loading स्क्रीन गायब हो जाएगी
     window.addEventListener('load', function() {
       const overlay = document.getElementById('loading-overlay');
       overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 400);
+      setTimeout(() => overlay.remove(), 300);
     });
   </script>
-  <!-- 🌟 Loading Screen End -->
-  <script src="script.js"></script>
   
   <div class="calculator">
     <div class="display">
@@ -191,14 +191,31 @@
 
       <button onclick="clearDisplay()" class="clear">C</button>
       <button onclick="backspace()" class="backspace">⌫</button>
-      <button onclick="toggleExtra()">More</button>
+      <button id="moreBtn" onclick="toggleExtra()">More</button>
       <button onclick="clearHistory()">Clear History</button>
     </div>
 
+    <!-- Extra functions -->
     <div id="extra" class="buttons extra-functions">
       <button onclick="press('%')">%</button>
       <button onclick="square()">x²</button>
       <button onclick="sqrt()">√x</button>
+      <!-- Age Calc button -->
+      <button onclick="toggleAgePanel()" style="grid-column: span 2;">Age Calc</button>
+    </div>
+
+    <!-- Age calculation panel (hidden until Age Calc clicked) -->
+    <div id="agePanel" class="age-panel">
+      <div style="color:#ddd;margin-bottom:6px;font-size:0.95em">Enter dates in <strong>DDMMYYYY</strong> format</div>
+      <div class="age-row">
+        <input id="date1" placeholder="From (DDMMYYYY)" maxlength="8" />
+        <input id="date2" placeholder="To (DDMMYYYY)" maxlength="8" />
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button onclick="calcAgeFromInputs()">Calculate Age</button>
+        <button onclick="fillToday('date2')">Use Today (To)</button>
+        <button onclick="hideAgePanel()">Close</button>
+      </div>
     </div>
 
     <div id="history" class="history"></div>
@@ -209,23 +226,67 @@
     let resultLine = document.getElementById("resultLine");
     let historyDiv = document.getElementById("history");
     let extraDiv = document.getElementById("extra");
+    let moreBtn = document.getElementById("moreBtn");
+    let agePanel = document.getElementById("agePanel");
+
+    function isOperator(ch) {
+      return ch === '+' || ch === '-' || ch === '*' || ch === '/' || ch === '%' ;
+    }
 
     function press(value) {
-      if (resultLine.innerText === "0" || resultLine.innerText === "Error") {
-        resultLine.innerText = value;
+      if (resultLine.innerText === "Error") {
+        if (!isOperator(value)) {
+          resultLine.innerText = value;
+        } else {
+          return;
+        }
+      } else if (resultLine.innerText === "0") {
+        if (isOperator(value)) {
+          if (value === '-') {
+            resultLine.innerText = value;
+          } else return;
+        } else resultLine.innerText = value;
       } else {
-        resultLine.innerText += value;
+        let last = resultLine.innerText.slice(-1);
+        if (isOperator(last) && isOperator(value)) {
+          resultLine.innerText = resultLine.innerText.slice(0, -1) + value;
+        } else if (value === '.') {
+          let parts = resultLine.innerText.split(/[\+\-\*\/%]/);
+          let curr = parts[parts.length - 1];
+          if (curr.includes('.')) return;
+          else resultLine.innerText += value;
+        } else {
+          resultLine.innerText += value;
+        }
       }
       inputLine.innerText = resultLine.innerText;
     }
 
+    function sanitizeExpression(expr) {
+      if (!expr) return "";
+      expr = expr.replace(/×/g, '*').replace(/÷/g, '/');
+      while (expr.length > 0 && /[+\-*/%.]$/.test(expr)) expr = expr.slice(0, -1);
+      return expr;
+    }
+
     function calculate() {
       try {
-        let result = eval(resultLine.innerText);
-        inputLine.innerText = resultLine.innerText;
-        addHistory(inputLine.innerText + " = " + result);
-        resultLine.innerText = result;
-      } catch {
+        let raw = resultLine.innerText;
+        let expr = sanitizeExpression(raw);
+        if (!expr) {
+          resultLine.innerText = "0";
+          inputLine.innerText = "";
+          return;
+        }
+        let result = Function('"use strict";return (' + expr + ')')();
+        if (result === Infinity || result === -Infinity || isNaN(result)) {
+          resultLine.innerText = "Error";
+        } else {
+          inputLine.innerText = resultLine.innerText + " =";
+          addHistory(resultLine.innerText + " = " + result);
+          resultLine.innerText = (Number.isInteger(result) ? String(result) : String(result));
+        }
+      } catch (e) {
         resultLine.innerText = "Error";
       }
     }
@@ -236,7 +297,7 @@
     }
 
     function backspace() {
-      if (resultLine.innerText.length > 1) {
+      if (resultLine.innerText.length > 1 && resultLine.innerText !== "Error") {
         resultLine.innerText = resultLine.innerText.slice(0, -1);
       } else {
         resultLine.innerText = "0";
@@ -246,13 +307,20 @@
 
     function toggleExtra() {
       extraDiv.classList.toggle("show");
+      if (extraDiv.classList.contains("show")) moreBtn.innerText = "Less";
+      else {
+        moreBtn.innerText = "More";
+        hideAgePanel(); // hide age panel when collapsing extras
+      }
     }
 
     function square() {
       try {
-        let val = eval(resultLine.innerText);
-        let result = val * val;
-        inputLine.innerText = val + "²";
+        let val = sanitizeExpression(resultLine.innerText);
+        if (!val) { resultLine.innerText = "Error"; return; }
+        let num = Function('"use strict";return (' + val + ')')();
+        let result = num * num;
+        inputLine.innerText = num + "²";
         addHistory(inputLine.innerText + " = " + result);
         resultLine.innerText = result;
       } catch {
@@ -262,9 +330,12 @@
 
     function sqrt() {
       try {
-        let val = eval(resultLine.innerText);
-        let result = Math.sqrt(val);
-        inputLine.innerText = "√" + val;
+        let val = sanitizeExpression(resultLine.innerText);
+        if (!val) { resultLine.innerText = "Error"; return; }
+        let num = Function('"use strict";return (' + val + ')')();
+        if (num < 0) { resultLine.innerText = "Error"; return; }
+        let result = Math.sqrt(num);
+        inputLine.innerText = "√" + num;
         addHistory(inputLine.innerText + " = " + result);
         resultLine.innerText = result;
       } catch {
@@ -275,8 +346,9 @@
     function addHistory(entry) {
       let div = document.createElement("div");
       div.className = "history-entry";
+      let safe = entry.replace(/'/g, "\\'");
       div.innerHTML = `<span>${entry}</span>
-        <button class="copy-btn" onclick="copyText('${entry}')">📋</button>`;
+        <button class="copy-btn" onclick="copyText('${safe}')">📋</button>`;
       historyDiv.prepend(div);
     }
 
@@ -285,9 +357,102 @@
     }
 
     function copyText(text) {
+      if (!navigator.clipboard) { alert("Clipboard API not supported"); return; }
       navigator.clipboard.writeText(text);
       alert("Copied: " + text);
     }
+
+    /* ================= Age Calculator functions ================= */
+
+    function toggleAgePanel() {
+      agePanel.classList.toggle("show");
+      // if showing ensure extras also visible
+      if (agePanel.classList.contains("show") && !extraDiv.classList.contains("show")) {
+        extraDiv.classList.add("show");
+        moreBtn.innerText = "Less";
+      }
+    }
+    function hideAgePanel() {
+      agePanel.classList.remove("show");
+    }
+    function fillToday(id) {
+      const d = new Date();
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yyyy = d.getFullYear();
+      document.getElementById(id).value = dd + mm + yyyy;
+    }
+
+    function parseDDMMYYYY(str) {
+      if (!/^\d{8}$/.test(str)) return null;
+      const d = parseInt(str.slice(0,2),10);
+      const m = parseInt(str.slice(2,4),10);
+      const y = parseInt(str.slice(4,8),10);
+      // basic ranges
+      if (y < 1000 || y > 9999) return null;
+      if (m < 1 || m > 12) return null;
+      const dt = new Date(y, m-1, d);
+      // validate month/day correctness
+      if (dt.getFullYear() !== y || dt.getMonth() !== (m-1) || dt.getDate() !== d) return null;
+      return dt;
+    }
+
+    function diffDates(d1, d2) {
+      // ensure d1 <= d2
+      if (d1 > d2) { const tmp = d1; d1 = d2; d2 = tmp; }
+      let y1 = d1.getFullYear(), m1 = d1.getMonth(), day1 = d1.getDate();
+      let y2 = d2.getFullYear(), m2 = d2.getMonth(), day2 = d2.getDate();
+
+      let years = y2 - y1;
+      let months = m2 - m1;
+      let days = day2 - day1;
+
+      if (days < 0) {
+        // borrow days from previous month of d2
+        const prevMonth = new Date(y2, m2, 0); // day 0 of month gives last day previous month
+        days += prevMonth.getDate();
+        months -= 1;
+      }
+      if (months < 0) {
+        months += 12;
+        years -= 1;
+      }
+      return { years, months, days };
+    }
+
+    function calcAgeFromInputs() {
+      const s1 = document.getElementById('date1').value.trim();
+      const s2 = document.getElementById('date2').value.trim();
+      if (!s1 || !s2) {
+        alert('Please enter both dates in DDMMYYYY format.');
+        return;
+      }
+      const d1 = parseDDMMYYYY(s1);
+      const d2 = parseDDMMYYYY(s2);
+      if (!d1 || !d2) {
+        alert('Invalid date format or invalid date. Use DDMMYYYY (e.g. 05041990).');
+        return;
+      }
+      const diff = diffDates(d1, d2);
+      const resultText = `Difference: ${diff.years} years, ${diff.months} months, ${diff.days} days`;
+      resultLine.innerText = resultText;
+      inputLine.innerText = `${s1} ↔ ${s2}`;
+      addHistory(`${formatDate(d1)} ↔ ${formatDate(d2)} = ${resultText}`);
+      // close panel optionally (comment/uncomment next line as desired)
+      // hideAgePanel();
+    }
+
+    function formatDate(d) {
+      const dd = String(d.getDate()).padStart(2,'0');
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const yy = d.getFullYear();
+      return `${dd}-${mm}-${yy}`;
+    }
+
+    function hideAgePanel() {
+      agePanel.classList.remove("show");
+    }
+
   </script>
 </body>
 </html>
