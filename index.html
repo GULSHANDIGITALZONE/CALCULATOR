@@ -4,164 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculator</title>
-  
   <style>
-    body {
-      background: #f0f0f0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .calculator {
-      background: #222;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-      width: 100%;
-      max-width: 380px;
-    }
-
-    .display {
-      background: #000;
-      color: #0f0;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 15px;
-      word-wrap: break-word;
-    }
-
-    .input-line {
-      font-size: 1.1em;
-      color: #aaa;
-      min-height: 22px;
-    }
-
-    .result-line {
-      font-size: 1.8em;
-      color: #0f0;
-      min-height: 40px;
-      text-align: right;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-
-    button {
-      font-size: 1.05em;
-      padding: 12px;
-      background: #333;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.15s;
-    }
-
+    body { background: #f0f0f0; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .calculator { background: #222; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 100%; max-width: 380px; }
+    .display { background: #000; color: #0f0; padding: 10px; border-radius: 8px; margin-bottom: 15px; word-wrap: break-word; }
+    .input-line { font-size: 1.1em; color: #aaa; min-height: 22px; }
+    .result-line { font-size: 1.8em; color: #0f0; min-height: 40px; text-align: right; }
+    .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    button { font-size: 1.05em; padding: 12px; background: #333; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.15s; }
     button:active { background: #555; }
-
-    .equals { background: #0a0; }
-    .clear { background: #a00; }
-    .backspace { background: #c60; }
-
+    .equals { background: #0a0; } .clear { background: #a00; } .backspace { background: #c60; }
     .extra-functions { display: none; margin-top: 10px; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .extra-functions.show { display: grid; }
-
-    .age-panel {
-      display: none;
-      margin-top: 10px;
-      background: #111;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
+    .age-panel { display: none; margin-top: 10px; background: #111; padding: 10px; border-radius: 8px; }
     .age-panel.show { display: block; }
-
     .age-row { display:flex; gap:8px; margin-bottom:8px; }
-    .age-row input {
-      flex:1;
-      padding:8px;
-      border-radius:6px;
-      border:1px solid #444;
-      background:#222;
-      color:#fff;
-    }
-
-    .history {
-      margin-top: 12px;
-      background: #111;
-      color: #fff;
-      padding: 10px;
-      border-radius: 8px;
-      max-height: 150px;
-      overflow-y: auto;
-      font-size: 0.9em;
-    }
-
-    .history-entry {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 4px 0;
-      padding: 6px;
-      background: #222;
-      border-radius: 5px;
-    }
-
-    .copy-btn {
-      font-size: 0.8em;
-      padding: 4px 6px;
-      background: #555;
-    }
-
+    .age-row input { flex:1; padding:8px; border-radius:6px; border:1px solid #444; background:#222; color:#fff; }
+    .history { margin-top: 12px; background: #111; color: #fff; padding: 10px; border-radius: 8px; max-height: 150px; overflow-y: auto; font-size: 0.9em; }
+    .history-entry { display: flex; justify-content: space-between; align-items: center; margin: 4px 0; padding: 6px; background: #222; border-radius: 5px; }
+    .copy-btn { font-size: 0.8em; padding: 4px 6px; background: #555; }
     @media (max-width: 480px) {
-      .input-line { font-size: 1em; }
-      .result-line { font-size: 1.4em; }
-      button { font-size: 0.95em; padding: 10px; }
-      .extra-functions { grid-template-columns: repeat(2,1fr); }
+      .input-line { font-size: 1em; } .result-line { font-size: 1.4em; } button { font-size: 0.95em; padding: 10px; } .extra-functions { grid-template-columns: repeat(2,1fr); }
     }
   </style>
 </head>
 <body>
-  <!-- Loading Overlay -->
-  <div id="loading-overlay">
-    <div class="loader-content">
-      <div class="spinner"></div>
-      <div class="loading-text">Loading...</div>
-    </div>
-  </div>
-
-  <style>
-    #loading-overlay {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      z-index: 9999;
-      transition: opacity 0.3s ease;
-    }
-    .loader-content { text-align: center; font-family: "Segoe UI", sans-serif; }
-    .spinner { width: 48px; height: 48px; border-radius: 50%; border: 5px solid rgba(0,0,0,0.08); border-top-color:#0073e6; animation: spin 1s linear infinite; margin:0 auto 8px; }
-    .loading-text { font-size: 16px; color: #333; font-weight:600; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  </style>
-
-  <script>
-    window.addEventListener('load', function() {
-      const overlay = document.getElementById('loading-overlay');
-      overlay.style.opacity = '0';
-      setTimeout(() => overlay.remove(), 300);
-    });
-  </script>
-  
   <div class="calculator">
     <div class="display">
       <div id="inputLine" class="input-line"></div>
@@ -195,16 +62,13 @@
       <button onclick="clearHistory()">Clear History</button>
     </div>
 
-    <!-- Extra functions -->
     <div id="extra" class="buttons extra-functions">
       <button onclick="press('%')">%</button>
       <button onclick="square()">x²</button>
       <button onclick="sqrt()">√x</button>
-      <!-- Age Calc button -->
-      <button onclick="toggleAgePanel()" style="grid-column: span 2;">Age</button>
+      <button onclick="toggleAgePanel()" style="grid-column: span 2;">Age Calc</button>
     </div>
 
-    <!-- Age calculation panel (hidden until Age Calc clicked) -->
     <div id="agePanel" class="age-panel">
       <div style="color:#ddd;margin-bottom:6px;font-size:0.95em">Enter dates in <strong>DDMMYYYY</strong> format</div>
       <div class="age-row">
@@ -230,31 +94,42 @@
     let agePanel = document.getElementById("agePanel");
 
     function isOperator(ch) {
-      return ch === '+' || ch === '-' || ch === '*' || ch === '/' || ch === '%' ;
+      return ch === '+' || ch === '-' || ch === '*' || ch === '/' ;
     }
 
+    // PRESS: smart input handling (prevents consecutive ops, handles dot and percent)
     function press(value) {
+      // convert fancy minus char to normal minus if needed
+      if (value === '−') value = '-';
       if (resultLine.innerText === "Error") {
-        if (!isOperator(value)) {
+        if (!isOperator(value) && value !== '%') {
           resultLine.innerText = value;
         } else {
           return;
         }
       } else if (resultLine.innerText === "0") {
         if (isOperator(value)) {
-          if (value === '-') {
-            resultLine.innerText = value;
-          } else return;
-        } else resultLine.innerText = value;
+          if (value === '-') resultLine.innerText = value;
+          else return;
+        } else {
+          resultLine.innerText = value;
+        }
       } else {
         let last = resultLine.innerText.slice(-1);
-        if (isOperator(last) && isOperator(value)) {
+        // allow '%' after number only
+        if (value === '%' ) {
+          // if last char is digit, append %
+          if (/\d/.test(last)) resultLine.innerText += '%';
+          // else ignore stray %
+        } else if (isOperator(last) && isOperator(value)) {
+          // replace consecutive operator
           resultLine.innerText = resultLine.innerText.slice(0, -1) + value;
         } else if (value === '.') {
+          // prevent multiple dots in current number segment
           let parts = resultLine.innerText.split(/[\+\-\*\/%]/);
           let curr = parts[parts.length - 1];
           if (curr.includes('.')) return;
-          else resultLine.innerText += value;
+          resultLine.innerText += value;
         } else {
           resultLine.innerText += value;
         }
@@ -262,197 +137,150 @@
       inputLine.innerText = resultLine.innerText;
     }
 
-    function sanitizeExpression(expr) {
-      if (!expr) return "";
-      expr = expr.replace(/×/g, '*').replace(/÷/g, '/');
-      while (expr.length > 0 && /[+\-*/%.]$/.test(expr)) expr = expr.slice(0, -1);
+    // SANITIZE: normalize × ÷ then trim trailing operators (+ - * / .) EXCEPT '%' because % belongs to number
+    function sanitizeExpression(raw) {
+      if (!raw) return "";
+      let expr = raw.replace(/×/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+      // Trim trailing operator characters except '%' (we want to keep e.g. '20%' intact)
+      while (expr.length > 0 && /[+\-*/.]$/.test(expr)) {
+        expr = expr.slice(0, -1);
+      }
       return expr;
     }
 
+    // FINAL percent handler:
+    // 1) convert N% -> (N/100)
+    // 2) convert contextual A + (B/100) -> A + (A * B/100)  (same for -)
+    // 3) keep A * (B/100) and A / (B/100) as-is (these already mean percent of)
+   // Safe, single-pass calculator-style percent handler
+function applyCalculatorPercent(expr) {
+  if (!expr) return expr;
+
+  // 1) Convert standalone N% -> (N/100)
+  //    e.g. 10% => (10/100)
+  expr = expr.replace(/(\d+(\.\d+)?)%/g, "($1/100)");
+
+  // 2) Convert contextual additions/subtractions:
+  //    A + (B/100)  => A + (A * B / 100)
+  //    A - (B/100)  => A - (A * B / 100)
+  // Do this in one global pass (no while loop) to avoid infinite replacements.
+  expr = expr.replace(/(\d+(\.\d+)?)([+\-])\((\d+(\.\d+)?\/100)\)/g,
+    function(match, A, _a, op, Bexpr) {
+      if (op === '+') return `${A}+(${A}*${Bexpr})`;
+      if (op === '-') return `${A}-(${A}*${Bexpr})`;
+      return match;
+    }
+  );
+
+  // 3) For multiplication/division patterns like A*(B/100) or A/(B/100)
+  //    they already behave correctly after step 1, so we don't change them.
+
+  return expr;
+}
+  
+
     function calculate() {
       try {
-        let raw = resultLine.innerText;
+        const raw = resultLine.innerText;
         let expr = sanitizeExpression(raw);
         if (!expr) {
           resultLine.innerText = "0";
           inputLine.innerText = "";
           return;
         }
-        let result = Function('"use strict";return (' + expr + ')')();
+        // Apply percent rules AFTER trimming trailing operators
+        expr = applyCalculatorPercent(expr);
+
+        // Evaluate safely
+        let result = Function('"use strict"; return (' + expr + ')')();
         if (result === Infinity || result === -Infinity || isNaN(result)) {
           resultLine.innerText = "Error";
         } else {
-          inputLine.innerText = resultLine.innerText + " =";
-          addHistory(resultLine.innerText + " = " + result);
-          resultLine.innerText = (Number.isInteger(result) ? String(result) : String(result));
+          inputLine.innerText = raw + " =";
+          // Format result: if integer show integer else show trimmed float
+          if (Number.isInteger(result)) resultLine.innerText = String(result);
+          else resultLine.innerText = String(parseFloat(result.toFixed(10))).replace(/\.?0+$/, '');
+          addHistory(raw + " = " + resultLine.innerText);
         }
       } catch (e) {
         resultLine.innerText = "Error";
       }
     }
 
-    function clearDisplay() {
-      inputLine.innerText = "";
-      resultLine.innerText = "0";
-    }
-
+    function clearDisplay() { inputLine.innerText = ""; resultLine.innerText = "0"; }
     function backspace() {
-      if (resultLine.innerText.length > 1 && resultLine.innerText !== "Error") {
+      if (resultLine.innerText !== "Error" && resultLine.innerText.length > 1) {
         resultLine.innerText = resultLine.innerText.slice(0, -1);
-      } else {
-        resultLine.innerText = "0";
-      }
+      } else resultLine.innerText = "0";
       inputLine.innerText = resultLine.innerText;
     }
 
     function toggleExtra() {
       extraDiv.classList.toggle("show");
       if (extraDiv.classList.contains("show")) moreBtn.innerText = "Less";
-      else {
-        moreBtn.innerText = "More";
-        hideAgePanel(); // hide age panel when collapsing extras
-      }
+      else { moreBtn.innerText = "More"; hideAgePanel(); }
     }
 
     function square() {
       try {
         let val = sanitizeExpression(resultLine.innerText);
         if (!val) { resultLine.innerText = "Error"; return; }
-        let num = Function('"use strict";return (' + val + ')')();
-        let result = num * num;
-        inputLine.innerText = num + "²";
-        addHistory(inputLine.innerText + " = " + result);
-        resultLine.innerText = result;
-      } catch {
-        resultLine.innerText = "Error";
-      }
+        val = applyCalculatorPercent(val);
+        let num = Function('"use strict"; return (' + val + ')')();
+        let res = num * num;
+        inputLine.innerText = val + "²";
+        resultLine.innerText = String(res);
+        addHistory(inputLine.innerText + " = " + resultLine.innerText);
+      } catch { resultLine.innerText = "Error"; }
     }
 
     function sqrt() {
       try {
         let val = sanitizeExpression(resultLine.innerText);
         if (!val) { resultLine.innerText = "Error"; return; }
-        let num = Function('"use strict";return (' + val + ')')();
+        val = applyCalculatorPercent(val);
+        let num = Function('"use strict"; return (' + val + ')')();
         if (num < 0) { resultLine.innerText = "Error"; return; }
-        let result = Math.sqrt(num);
-        inputLine.innerText = "√" + num;
-        addHistory(inputLine.innerText + " = " + result);
-        resultLine.innerText = result;
-      } catch {
-        resultLine.innerText = "Error";
-      }
+        let res = Math.sqrt(num);
+        inputLine.innerText = "√" + val;
+        resultLine.innerText = String(res);
+        addHistory(inputLine.innerText + " = " + resultLine.innerText);
+      } catch { resultLine.innerText = "Error"; }
     }
 
     function addHistory(entry) {
       let div = document.createElement("div");
       div.className = "history-entry";
       let safe = entry.replace(/'/g, "\\'");
-      div.innerHTML = `<span>${entry}</span>
-        <button class="copy-btn" onclick="copyText('${safe}')">📋</button>`;
+      div.innerHTML = `<span>${entry}</span><button class="copy-btn" onclick="copyText('${safe}')">📋</button>`;
       historyDiv.prepend(div);
     }
-
-    function clearHistory() {
-      historyDiv.innerHTML = "";
-    }
-
+    function clearHistory() { historyDiv.innerHTML = ""; }
     function copyText(text) {
-      if (!navigator.clipboard) { alert("Clipboard API not supported"); return; }
+      if (!navigator.clipboard) { alert("Clipboard not supported"); return; }
       navigator.clipboard.writeText(text);
       alert("Copied: " + text);
     }
 
-    /* ================= Age Calculator functions ================= */
-
-    function toggleAgePanel() {
-      agePanel.classList.toggle("show");
-      // if showing ensure extras also visible
-      if (agePanel.classList.contains("show") && !extraDiv.classList.contains("show")) {
-        extraDiv.classList.add("show");
-        moreBtn.innerText = "Less";
-      }
-    }
-    function hideAgePanel() {
-      agePanel.classList.remove("show");
-    }
+    /* ========== Age calc (unchanged) ========== */
+    function toggleAgePanel() { agePanel.classList.toggle("show"); if (agePanel.classList.contains("show") && !extraDiv.classList.contains("show")) { extraDiv.classList.add("show"); moreBtn.innerText = "Less"; } }
+    function hideAgePanel() { agePanel.classList.remove("show"); }
     function fillToday(id) {
-      const d = new Date();
-      const dd = String(d.getDate()).padStart(2, '0');
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const yyyy = d.getFullYear();
+      const d = new Date(); const dd = String(d.getDate()).padStart(2,'0'); const mm = String(d.getMonth()+1).padStart(2,'0'); const yyyy = d.getFullYear();
       document.getElementById(id).value = dd + mm + yyyy;
     }
-
-    function parseDDMMYYYY(str) {
-      if (!/^\d{8}$/.test(str)) return null;
-      const d = parseInt(str.slice(0,2),10);
-      const m = parseInt(str.slice(2,4),10);
-      const y = parseInt(str.slice(4,8),10);
-      // basic ranges
-      if (y < 1000 || y > 9999) return null;
-      if (m < 1 || m > 12) return null;
-      const dt = new Date(y, m-1, d);
-      // validate month/day correctness
-      if (dt.getFullYear() !== y || dt.getMonth() !== (m-1) || dt.getDate() !== d) return null;
-      return dt;
-    }
-
-    function diffDates(d1, d2) {
-      // ensure d1 <= d2
-      if (d1 > d2) { const tmp = d1; d1 = d2; d2 = tmp; }
-      let y1 = d1.getFullYear(), m1 = d1.getMonth(), day1 = d1.getDate();
-      let y2 = d2.getFullYear(), m2 = d2.getMonth(), day2 = d2.getDate();
-
-      let years = y2 - y1;
-      let months = m2 - m1;
-      let days = day2 - day1;
-
-      if (days < 0) {
-        // borrow days from previous month of d2
-        const prevMonth = new Date(y2, m2, 0); // day 0 of month gives last day previous month
-        days += prevMonth.getDate();
-        months -= 1;
-      }
-      if (months < 0) {
-        months += 12;
-        years -= 1;
-      }
-      return { years, months, days };
-    }
-
+    function parseDDMMYYYY(str) { if (!/^\d{8}$/.test(str)) return null; const d = parseInt(str.slice(0,2),10); const m = parseInt(str.slice(2,4),10); const y = parseInt(str.slice(4,8),10); if (y < 1000 || y > 9999) return null; if (m < 1 || m > 12) return null; const dt = new Date(y, m-1, d); if (dt.getFullYear() !== y || dt.getMonth() !== (m-1) || dt.getDate() !== d) return null; return dt; }
+    function diffDates(d1, d2) { if (d1 > d2) { const t = d1; d1 = d2; d2 = t; } let y1=d1.getFullYear(), m1=d1.getMonth(), day1=d1.getDate(); let y2=d2.getFullYear(), m2=d2.getMonth(), day2=d2.getDate(); let years=y2-y1, months=m2-m1, days=day2-day1; if (days<0) { const prev = new Date(y2,m2,0); days += prev.getDate(); months -= 1; } if (months<0) { months += 12; years -= 1; } return {years,months,days}; }
     function calcAgeFromInputs() {
-      const s1 = document.getElementById('date1').value.trim();
-      const s2 = document.getElementById('date2').value.trim();
-      if (!s1 || !s2) {
-        alert('Please enter both dates in DDMMYYYY format.');
-        return;
-      }
-      const d1 = parseDDMMYYYY(s1);
-      const d2 = parseDDMMYYYY(s2);
-      if (!d1 || !d2) {
-        alert('Invalid date format or invalid date. Use DDMMYYYY (e.g. 05041990).');
-        return;
-      }
-      const diff = diffDates(d1, d2);
+      const s1=document.getElementById('date1').value.trim(), s2=document.getElementById('date2').value.trim();
+      if(!s1||!s2){ alert('Please enter both dates in DDMMYYYY format.'); return; }
+      const d1=parseDDMMYYYY(s1), d2=parseDDMMYYYY(s2);
+      if(!d1||!d2){ alert('Invalid date format. Use DDMMYYYY (e.g. 05041990).'); return; }
+      const diff=diffDates(d1,d2);
       const resultText = `Difference: ${diff.years} years, ${diff.months} months, ${diff.days} days`;
-      resultLine.innerText = resultText;
-      inputLine.innerText = `${s1} ↔ ${s2}`;
-      addHistory(`${formatDate(d1)} ↔ ${formatDate(d2)} = ${resultText}`);
-      // close panel optionally (comment/uncomment next line as desired)
-      // hideAgePanel();
+      resultLine.innerText = resultText; inputLine.innerText = `${formatDate(d1)} ↔ ${formatDate(d2)}`; addHistory(`${formatDate(d1)} ↔ ${formatDate(d2)} = ${resultText}`);
     }
-
-    function formatDate(d) {
-      const dd = String(d.getDate()).padStart(2,'0');
-      const mm = String(d.getMonth()+1).padStart(2,'0');
-      const yy = d.getFullYear();
-      return `${dd}-${mm}-${yy}`;
-    }
-
-    function hideAgePanel() {
-      agePanel.classList.remove("show");
-    }
-
+    function formatDate(d){ const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yy=d.getFullYear(); return `${dd}-${mm}-${yy}`; }
   </script>
 </body>
 </html>
