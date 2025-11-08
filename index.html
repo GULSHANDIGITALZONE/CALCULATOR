@@ -1,272 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>GDZ Calculator — with Theme, Converters & Auto History</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculator</title>
   <style>
-    :root{
-      --bg:#f0f0f0; --card:#222; --text:#0f0; --muted:#aaa; --btn:#333; --btn-active:#0a0;
-      --panel:#111; --panel-contrast:#fff;
-    }
-    [data-theme="light"]{
-      --bg:#f0f0f0; --card:#fff; --text:#080; --muted:#444; --btn:#e6e6e6; --btn-active:#0a6; --panel:#fafafa; --panel-contrast:#111;
-    }
-    [data-theme="dark"]{
-      --bg:#0f1112; --card:#222; --text:#0f0; --muted:#aaa; --btn:#333; --btn-active:#0a0; --panel:#111; --panel-contrast:#fff;
-    }
-
-    html,body{height:100%; margin:0; background:var(--bg); font-family:Arial,Helvetica,sans-serif; color:var(--panel-contrast)}
-    .wrap{min-height:100%; display:flex; align-items:center; justify-content:center; padding:20px}
-    .calculator{width:100%; max-width:780px; background:var(--card); padding:18px; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25);}
-    .top-row{display:flex; gap:8px; align-items:center; justify-content:space-between; margin-bottom:10px}
-    .title{font-weight:700; font-size:1.1rem; color:var(--panel-contrast)}
-    .controls{display:flex; gap:8px; align-items:center}
-    .small-btn{background:var(--btn); color:var(--panel-contrast); border:none; padding:8px 10px; border-radius:8px; cursor:pointer}
-    .small-btn:active{transform:translateY(1px)}
-    .display{background:#000; color:var(--text); padding:10px; border-radius:8px; margin-bottom:12px}
-    .display .input-line{color:var(--muted); font-size:0.95rem; min-height:20px; word-wrap:break-word}
-    .display .result-line{font-size:1.6rem; text-align:right; min-height:36px}
-    .buttons{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
-    button.key{padding:14px; font-size:1.05rem; border-radius:8px; border:none; background:var(--btn); color:var(--panel-contrast); cursor:pointer}
-    button.key:active{transform:translateY(1px)}
-    .equals{background:var(--btn-active); color:#fff}
-    .clear{background:#a00}
-    .backspace{background:#c60}
-    .extra-functions{display:none; margin-top:12px; gap:8px}
-    .extra-functions.show{display:grid}
-    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:8px}
-    .panel{background:var(--panel); color:var(--panel-contrast); padding:10px; border-radius:8px}
-    .age-panel{display:none; margin-top:10px}
-    .age-panel.show{display:block}
-    .age-row{display:flex; gap:8px; margin-bottom:8px}
-    .age-row input, .conv-row input, .conv-row select{flex:1; padding:8px; border-radius:6px; border:1px solid #444; background:transparent; color:var(--panel-contrast)}
-    .history{margin-top:12px; max-height:160px; overflow:auto; background:#111; padding:8px; border-radius:8px; font-size:0.9rem}
-    .history-entry{display:flex; gap:8px; justify-content:space-between; align-items:center; margin-bottom:6px; background:#222; padding:6px; border-radius:6px}
-    .copy-btn{padding:4px 6px; border-radius:6px; border:none; background:#555; color:#fff; cursor:pointer}
-    .muted{color:var(--muted); font-size:0.9rem}
-    .converter{display:flex; flex-direction:column; gap:8px}
-    .row{display:flex; gap:8px}
-    .flex-1{flex:1}
-    .footer-note{margin-top:10px; font-size:0.85rem; color:var(--muted)}
-    @media(max-width:640px){
-      .top-row{flex-direction:column; align-items:flex-start}
-      .grid-3{grid-template-columns:repeat(2,1fr)}
+    body { background: #f0f0f0; font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .calculator { background: #222; padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); width: 100%; max-width: 380px; }
+    .display { background: #000; color: #0f0; padding: 10px; border-radius: 8px; margin-bottom: 15px; word-wrap: break-word; }
+    .input-line { font-size: 1.1em; color: #aaa; min-height: 22px; }
+    .result-line { font-size: 1.8em; color: #0f0; min-height: 40px; text-align: right; }
+    .buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    button { font-size: 1.05em; padding: 12px; background: #333; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: 0.15s; }
+    button:active { background: #555; }
+    .equals { background: #0a0; } .clear { background: #a00; } .backspace { background: #c60; }
+    .extra-functions { display: none; margin-top: 10px; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .extra-functions.show { display: grid; }
+    .age-panel { display: none; margin-top: 10px; background: #111; padding: 10px; border-radius: 8px; }
+    .age-panel.show { display: block; }
+    .age-row { display:flex; gap:8px; margin-bottom:8px; }
+    .age-row input { flex:1; padding:8px; border-radius:6px; border:1px solid #444; background:#222; color:#fff; }
+    .history { margin-top: 12px; background: #111; color: #fff; padding: 10px; border-radius: 8px; max-height: 150px; overflow-y: auto; font-size: 0.9em; }
+    .history-entry { display: flex; justify-content: space-between; align-items: center; margin: 4px 0; padding: 6px; background: #222; border-radius: 5px; }
+    .copy-btn { font-size: 0.8em; padding: 4px 6px; background: #555; }
+    @media (max-width: 480px) {
+      .input-line { font-size: 1em; } .result-line { font-size: 1.4em; } button { font-size: 0.95em; padding: 10px; } .extra-functions { grid-template-columns: repeat(2,1fr); }
     }
   </style>
 </head>
-<body data-theme="dark">
-  <div class="wrap">
-    <div class="calculator panel" role="application" aria-label="Calculator with converters">
-      <div class="top-row">
-        <div class="title">GDZ — Calculator + Converters</div>
-        <div class="controls">
-          <button class="small-btn" id="themeBtn">Theme</button>
-          <button class="small-btn" id="clearSaved">Clear Saved History</button>
-        </div>
-      </div>
-
-      <!-- Display -->
-      <div class="display">
-        <div id="inputLine" class="input-line"></div>
-        <div id="resultLine" class="result-line">0</div>
-      </div>
-
-      <!-- Keys -->
-      <div class="buttons" id="keypad">
-        <button class="key" onclick="press('7')">7</button>
-        <button class="key" onclick="press('8')">8</button>
-        <button class="key" onclick="press('9')">9</button>
-        <button class="key" onclick="press('/')">÷</button>
-
-        <button class="key" onclick="press('4')">4</button>
-        <button class="key" onclick="press('5')">5</button>
-        <button class="key" onclick="press('6')">6</button>
-        <button class="key" onclick="press('*')">×</button>
-
-        <button class="key" onclick="press('1')">1</button>
-        <button class="key" onclick="press('2')">2</button>
-        <button class="key" onclick="press('3')">3</button>
-        <button class="key" onclick="press('-')">−</button>
-
-        <button class="key" onclick="press('0')">0</button>
-        <button class="key" onclick="press('.')">.</button>
-        <button class="key equals" onclick="calculate()">=</button>
-        <button class="key" onclick="press('+')">+</button>
-
-        <button class="key clear" onclick="clearDisplay()">C</button>
-        <button class="key backspace" onclick="backspace()">⌫</button>
-        <button class="key" id="moreBtn" onclick="toggleExtra()">More</button>
-        <button class="key" onclick="clearHistory()">Clear History</button>
-      </div>
-
-      <!-- Extra functions (includes converters + age panel) -->
-      <div id="extra" class="extra-functions">
-        <div class="grid-3">
-          <button class="key" onclick="press('%')">%</button>
-          <button class="key" onclick="square()">x²</button>
-          <button class="key" onclick="sqrt()">√x</button>
-        </div>
-
-        <div class="grid-3">
-          <button class="key" onclick="toggleAgePanel()">Age Calc</button>
-          <button class="key" onclick="toggleUnitPanel()">Unit Converter</button>
-          <button class="key" onclick="toggleCurrencyPanel()">Currency Converter</button>
-        </div>
-
-        <!-- Age panel -->
-        <div id="agePanel" class="age-panel panel">
-          <div class="muted">Enter dates in <strong>DDMMYYYY</strong></div>
-          <div class="age-row">
-            <input id="date1" placeholder="From (DDMMYYYY)" maxlength="8" />
-            <input id="date2" placeholder="To (DDMMYYYY)" maxlength="8" />
-          </div>
-          <div class="row">
-            <button class="small-btn" onclick="calcAgeFromInputs()">Calculate Age</button>
-            <button class="small-btn" onclick="fillToday('date2')">Use Today</button>
-            <button class="small-btn" onclick="hideAgePanel()">Close</button>
-          </div>
-        </div>
-
-        <!-- Unit converter -->
-        <div id="unitPanel" class="panel" style="display:none; margin-top:8px;">
-          <div class="muted">Unit Converter</div>
-          <div class="converter">
-            <div class="conv-row row">
-              <input id="unitInput" placeholder="Value" />
-              <select id="unitType" oninput="buildUnitOptions()">
-                <option value="length">Length</option>
-                <option value="weight">Weight</option>
-                <option value="temp">Temperature</option>
-              </select>
-            </div>
-            <div class="conv-row row">
-              <select id="unitFrom"></select>
-              <select id="unitTo"></select>
-            </div>
-            <div class="row">
-              <button class="small-btn" onclick="doUnitConvert()">Convert</button>
-              <button class="small-btn" onclick="swapUnits()">Swap</button>
-              <button class="small-btn" onclick="clearUnitFields()">Clear</button>
-            </div>
-            <div id="unitResult" class="muted"></div>
-          </div>
-        </div>
-
-        <!-- Currency converter -->
-        <div id="currencyPanel" class="panel" style="display:none; margin-top:8px;">
-          <div class="muted">Currency Converter (live rates)</div>
-          <div class="conv-row row">
-            <input id="curAmount" placeholder="Amount" />
-            <select id="curFrom"></select>
-            <select id="curTo"></select>
-          </div>
-          <div class="row">
-            <button class="small-btn" onclick="doCurrencyConvert()">Convert</button>
-            <button class="small-btn" onclick="fetchRates(true)">Refresh Rates</button>
-            <button class="small-btn" onclick="clearCurrency()">Clear</button>
-          </div>
-          <div id="curResult" class="muted"></div>
-          <div class="footer-note">Rates fetched from exchangerate.host (fallback used if fetch fails)</div>
-        </div>
-      </div>
-
-      <!-- History area (auto-saved) -->
-      <div id="history" class="history"></div>
-      <div class="footer-note">History is saved locally (auto). You can clear saved history above.</div>
+<body>
+  <div class="calculator">
+    <div class="display">
+      <div id="inputLine" class="input-line"></div>
+      <div id="resultLine" class="result-line">0</div>
     </div>
+
+    <div class="buttons">
+      <button onclick="press('7')">7</button>
+      <button onclick="press('8')">8</button>
+      <button onclick="press('9')">9</button>
+      <button onclick="press('/')">÷</button>
+
+      <button onclick="press('4')">4</button>
+      <button onclick="press('5')">5</button>
+      <button onclick="press('6')">6</button>
+      <button onclick="press('*')">×</button>
+
+      <button onclick="press('1')">1</button>
+      <button onclick="press('2')">2</button>
+      <button onclick="press('3')">3</button>
+      <button onclick="press('-')">−</button>
+
+      <button onclick="press('0')">0</button>
+      <button onclick="press('.')">.</button>
+      <button onclick="calculate()" class="equals">=</button>
+      <button onclick="press('+')">+</button>
+
+      <button onclick="clearDisplay()" class="clear">C</button>
+      <button onclick="backspace()" class="backspace">⌫</button>
+      <button id="moreBtn" onclick="toggleExtra()">More</button>
+      <button onclick="clearHistory()">Clear History</button>
+    </div>
+
+   
+    <div id="extra" class="buttons extra-functions">
+      <button style="background-color: rgb(21, 21, 177);" onclick="press('%')">%</button>
+      <button style="background-color: rgb(21, 21, 177);;" onclick="square()">x²</button>
+      <button style="background-color: rgb(21, 21, 177);;" onclick="sqrt()">√x</button>
+      <button style="background-color: rgb(6, 128, 52);;" onclick="toggleAgePanel()" style="grid-column: span 2;">Age Calc</button>
+    </div>
+
+    <div id="agePanel" class="age-panel">
+      <div style="color:#ddd;margin-bottom:6px;font-size:0.95em">Enter dates in <strong>DDMMYYYY</strong> format</div>
+      <div class="age-row">
+        <input id="date1" placeholder="From (DDMMYYYY)" maxlength="8" />
+        <input id="date2" placeholder="To (DDMMYYYY)" maxlength="8" />
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button  style="background-color: green"  onclick="calcAgeFromInputs()">Calculate Age</button>
+        <button style="background-color: rgb(0, 107, 121)"  onclick="fillToday('date2')">Use Today (To)</button>
+        <button style="background-color: rgb(141, 5, 5)"  onclick="hideAgePanel()">Close</button>
+      </div>
+    </div>
+
+    <div id="history" class="history"></div>
   </div>
 
   <script>
-    // --- State + Init ---
-    const root = document.documentElement;
-    const storageKey = 'gdz_calc_history_v1';
-    let history = [];
+    let inputLine = document.getElementById("inputLine");
+    let resultLine = document.getElementById("resultLine");
+    let historyDiv = document.getElementById("history");
+    let extraDiv = document.getElementById("extra");
+    let moreBtn = document.getElementById("moreBtn");
+    let agePanel = document.getElementById("agePanel");
 
-    // theme
-    const themeBtn = document.getElementById('themeBtn');
-    themeBtn.addEventListener('click', toggleTheme);
-    // load theme from localStorage or default dark
-    const savedTheme = localStorage.getItem('gdz_theme');
-    if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
-    else document.body.setAttribute('data-theme','dark');
-
-    function toggleTheme(){
-      const cur = document.body.getAttribute('data-theme') || 'dark';
-      const next = (cur === 'dark') ? 'light' : 'dark';
-      document.body.setAttribute('data-theme', next);
-      localStorage.setItem('gdz_theme', next);
+    function isOperator(ch) {
+      return ch === '+' || ch === '-' || ch === '*' || ch === '/' ;
     }
 
-    // load saved history
-    function loadSaved(){
-      try {
-        const raw = localStorage.getItem(storageKey);
-        if(raw) history = JSON.parse(raw);
-        else history = [];
-        renderHistory();
-      } catch(e){ history = []; }
-    }
-    function saveHistory(){
-      localStorage.setItem(storageKey, JSON.stringify(history));
-    }
-    function addHistoryEntry(text){
-      const ts = new Date().toISOString();
-      history.unshift({ts, text});
-      // keep last 200
-      if(history.length>200) history.length = 200;
-      saveHistory();
-      renderHistory();
-    }
-    function renderHistory(){
-      const h = document.getElementById('history');
-      h.innerHTML = '';
-      history.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'history-entry';
-        const left = document.createElement('div');
-        left.textContent = `${item.text}`;
-        const right = document.createElement('div');
-        const copyBtn = document.createElement('button');
-        copyBtn.className = 'copy-btn';
-        copyBtn.textContent = '📋';
-        copyBtn.onclick = ()=>{ navigator.clipboard?.writeText(item.text); alert('Copied'); };
-        right.appendChild(copyBtn);
-        div.appendChild(left); div.appendChild(right);
-        h.appendChild(div);
-      });
-    }
-    document.getElementById('clearSaved').addEventListener('click', ()=>{
-      if(confirm('Clear saved history?')){ history=[]; saveHistory(); renderHistory(); alert('Cleared'); }
-    });
-
-    loadSaved();
-
-    // --- Calculator core (using your working percent and sanitize logic) ---
-    const inputLine = document.getElementById('inputLine');
-    const resultLine = document.getElementById('resultLine');
-
-    function isOperator(ch) { return ch === '+' || ch === '-' || ch === '*' || ch === '/' ; }
-
-    function press(value){
-      if(value === '−') value='-';
+    // PRESS: smart input handling (prevents consecutive ops, handles dot and percent)
+    function press(value) {
+      // convert fancy minus char to normal minus if needed
+      if (value === '−') value = '-';
       if (resultLine.innerText === "Error") {
-        if (!isOperator(value) && value !== '%') resultLine.innerText = value;
-        else return;
+        if (!isOperator(value) && value !== '%') {
+          resultLine.innerText = value;
+        } else {
+          return;
+        }
       } else if (resultLine.innerText === "0") {
         if (isOperator(value)) {
           if (value === '-') resultLine.innerText = value;
           else return;
-        } else resultLine.innerText = value;
+        } else {
+          resultLine.innerText = value;
+        }
       } else {
-        const last = resultLine.innerText.slice(-1);
-        if (value === '%') {
+        let last = resultLine.innerText.slice(-1);
+        // allow '%' after number only
+        if (value === '%' ) {
+          // if last char is digit, append %
           if (/\d/.test(last)) resultLine.innerText += '%';
+          // else ignore stray %
         } else if (isOperator(last) && isOperator(value)) {
+          // replace consecutive operator
           resultLine.innerText = resultLine.innerText.slice(0, -1) + value;
         } else if (value === '.') {
-          const parts = resultLine.innerText.split(/[\+\-\*\/%]/);
-          const curr = parts[parts.length - 1];
+          // prevent multiple dots in current number segment
+          let parts = resultLine.innerText.split(/[\+\-\*\/%]/);
+          let curr = parts[parts.length - 1];
           if (curr.includes('.')) return;
           resultLine.innerText += value;
         } else {
@@ -276,200 +138,150 @@
       inputLine.innerText = resultLine.innerText;
     }
 
-    function clearDisplay(){ inputLine.innerText=''; resultLine.innerText='0'; }
-    function backspace(){
-      if(resultLine.innerText !== "Error" && resultLine.innerText.length>1) resultLine.innerText = resultLine.innerText.slice(0,-1);
-      else resultLine.innerText = '0';
-      inputLine.innerText = resultLine.innerText;
+    // SANITIZE: normalize × ÷ then trim trailing operators (+ - * / .) EXCEPT '%' because % belongs to number
+    function sanitizeExpression(raw) {
+      if (!raw) return "";
+      let expr = raw.replace(/×/g, '*').replace(/÷/g, '/').replace(/\s+/g, '');
+      // Trim trailing operator characters except '%' (we want to keep e.g. '20%' intact)
+      while (expr.length > 0 && /[+\-*/.]$/.test(expr)) {
+        expr = expr.slice(0, -1);
+      }
+      return expr;
     }
 
-   // ====== REPLACE sanitizeExpression WITH THIS ======
-function sanitizeExpression(raw){
-  if(!raw) return '';
+    // FINAL percent handler:
+    // 1) convert N% -> (N/100)
+    // 2) convert contextual A + (B/100) -> A + (A * B/100)  (same for -)
+    // 3) keep A * (B/100) and A / (B/100) as-is (these already mean percent of)
+   // Safe, single-pass calculator-style percent handler
+function applyCalculatorPercent(expr) {
+  if (!expr) return expr;
 
-  // normalize and remove all spaces and "="
-  let expr = raw.replace(/×/g, '*')
-                .replace(/÷/g, '/')
-                .replace(/\s+/g, '')
-                .replace(/=/g, ''); // <-- remove stray equals
+  // 1) Convert standalone N% -> (N/100)
+  //    e.g. 10% => (10/100)
+  expr = expr.replace(/(\d+(\.\d+)?)%/g, "($1/100)");
 
-  // only keep digits, operators, %, parentheses, and dot
-  expr = expr.replace(/[^0-9+\-*/().%]/g, '');
+  // 2) Convert contextual additions/subtractions:
+  //    A + (B/100)  => A + (A * B / 100)
+  //    A - (B/100)  => A - (A * B / 100)
+  // Do this in one global pass (no while loop) to avoid infinite replacements.
+  expr = expr.replace(/(\d+(\.\d+)?)([+\-])\((\d+(\.\d+)?\/100)\)/g,
+    function(match, A, _a, op, Bexpr) {
+      if (op === '+') return `${A}+(${A}*${Bexpr})`;
+      if (op === '-') return `${A}-(${A}*${Bexpr})`;
+      return match;
+    }
+  );
 
-  // remove invalid starting operators
-  expr = expr.replace(/^[+*/]+/, '');
-
-  // remove trailing operator except % and )
-  while(expr.length > 0 && /[+\-*/.]$/.test(expr)) {
-    expr = expr.slice(0, -1);
-  }
+  // 3) For multiplication/division patterns like A*(B/100) or A/(B/100)
+  //    they already behave correctly after step 1, so we don't change them.
 
   return expr;
 }
+  
 
+    function calculate() {
+      try {
+        const raw = resultLine.innerText;
+        let expr = sanitizeExpression(raw);
+        if (!expr) {
+          resultLine.innerText = "0";
+          inputLine.innerText = "";
+          return;
+        }
+        // Apply percent rules AFTER trimming trailing operators
+        expr = applyCalculatorPercent(expr);
 
-// ====== REPLACE calculate WITH THIS ======
-function calculate(){
-  try {
-    const raw = resultLine.innerText || '';
-    let expr = sanitizeExpression(raw);
-
-    if(!expr){
-      // nothing to evaluate
-      inputLine.innerText = '';
-      resultLine.innerText = '0';
-      return;
-    }
-
-    // Apply percent rules safely
-    expr = applyCalculatorPercent(expr);
-
-    // Final safety check: only allow digits, parentheses, operators and decimals after percent expansion
-    if(!/^[0-9+\-*/().\s]+$/.test(expr)){
-      console.error('Sanitized expression contains disallowed chars:', expr);
-      resultLine.innerText = 'Error';
-      return;
-    }
-
-    // Evaluate using Function in strict mode (wrapped)
-    let value;
-    try {
-      value = Function('"use strict"; return (' + expr + ')')();
-    } catch(evalErr) {
-      console.error('Evaluation error:', evalErr, 'expr:', expr);
-      resultLine.innerText = 'Error';
-      return;
-    }
-
-    if(value === Infinity || value === -Infinity || Number.isNaN(value)){
-      resultLine.innerText = 'Error';
-      return;
-    }
-
-    // Format pretty
-    const out = Number.isInteger(value) ? String(value) : String(parseFloat(value.toFixed(12))).replace(/\.?0+$/,'');
-    inputLine.innerText = raw + ' =';
-    resultLine.innerText = out;
-    addHistory(`${raw} = ${out}`);
-  } catch(e){
-    // catch-all
-    console.error('Unexpected calculate() error:', e);
-    resultLine.innerText = 'Error';
-  }
-}
-
-    function square(){ try{ let v = sanitizeExpression(resultLine.innerText); if(!v){ resultLine.innerText='Error'; return; } v = applyCalculatorPercent(v); let n = Function('"use strict"; return ('+v+')')(); let r = n*n; resultLine.innerText = String(r); addHistory(`${v}² = ${r}`);}catch(e){resultLine.innerText='Error';}}
-    function sqrt(){ try{ let v = sanitizeExpression(resultLine.innerText); if(!v){ resultLine.innerText='Error'; return; } v = applyCalculatorPercent(v); let n = Function('"use strict"; return ('+v+')')(); if(n<0){resultLine.innerText='Error';return;} let r = Math.sqrt(n); resultLine.innerText = String(r); addHistory(`√${v} = ${r}`);}catch(e){ resultLine.innerText='Error'; } }
-
-    function clearHistory(){ if(confirm('Clear current session history?')){ history=[]; saveHistory(); renderHistory(); } }
-
-    // --- Extra panels toggles ---
-    function toggleExtra(){ const e=document.getElementById('extra'); e.classList.toggle('show'); const mb = document.getElementById('moreBtn'); mb.innerText = e.classList.contains('show')?'Less':'More'; if(!e.classList.contains('show')){ hideAgePanel(); hideUnitPanel(); hideCurrencyPanel(); } }
-    function toggleAgePanel(){ const p = document.getElementById('agePanel'); p.classList.toggle('show'); if(p.classList.contains('show')) { document.getElementById('extra').classList.add('show'); document.getElementById('moreBtn').innerText='Less'; } }
-    function hideAgePanel(){ document.getElementById('agePanel').classList.remove('show'); }
-
-    // --- Age calc functions (same as before) ---
-    function fillToday(id){ const d=new Date(); const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yyyy=d.getFullYear(); document.getElementById(id).value = dd+mm+yyyy; }
-    function parseDDMMYYYY(str){ if(!/^\d{8}$/.test(str)) return null; const d=parseInt(str.slice(0,2),10); const m=parseInt(str.slice(2,4),10); const y=parseInt(str.slice(4,8),10); if(y<1000||y>9999) return null; if(m<1||m>12) return null; const dt=new Date(y,m-1,d); if(dt.getFullYear()!==y||dt.getMonth()!==m-1||dt.getDate()!==d) return null; return dt; }
-    function diffDates(d1,d2){ if(d1>d2){ const t=d1; d1=d2; d2=t; } let y1=d1.getFullYear(), m1=d1.getMonth(), day1=d1.getDate(); let y2=d2.getFullYear(), m2=d2.getMonth(), day2=d2.getDate(); let years=y2-y1, months=m2-m1, days=day2-day1; if(days<0){ const prev=new Date(y2,m2,0); days += prev.getDate(); months -=1; } if(months<0){ months+=12; years-=1; } return {years,months,days}; }
-    function formatDate(d){ return `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()}`; }
-    function calcAgeFromInputs(){ const s1=document.getElementById('date1').value.trim(), s2=document.getElementById('date2').value.trim(); if(!s1||!s2){ alert('Please enter both dates in DDMMYYYY format.'); return; } const d1=parseDDMMYYYY(s1), d2=parseDDMMYYYY(s2); if(!d1||!d2){ alert('Invalid date format. Use DDMMYYYY (e.g. 05041990).'); return; } const diff=diffDates(d1,d2); const resultText = `Difference: ${diff.years} years, ${diff.months} months, ${diff.days} days`; resultLine.innerText = resultText; inputLine.innerText = `${formatDate(d1)} ↔ ${formatDate(d2)}`; addHistory(`${formatDate(d1)} ↔ ${formatDate(d2)} = ${resultText}`); }
-
-    // --- Unit converter ---
-    const unitOptions = {
-      length: {units:['m','km','cm','mm','in','ft'], toBase: {m:1, km:1000, cm:0.01, mm:0.001, in:0.0254, ft:0.3048}},
-      weight: {units:['kg','g','lb','oz'], toBase: {kg:1, g:0.001, lb:0.45359237, oz:0.0283495231}},
-      temp: {units:['C','F','K']} // temp handled separately
-    };
-    function toggleUnitPanel(){ const p=document.getElementById('unitPanel'); p.style.display = (p.style.display==='block')? 'none' : 'block'; if(p.style.display==='block'){ document.getElementById('extra').classList.add('show'); document.getElementById('moreBtn').innerText='Less'; buildUnitOptions(); } }
-    function hideUnitPanel(){ document.getElementById('unitPanel').style.display='none'; }
-    function buildUnitOptions(){
-      const type = document.getElementById('unitType').value;
-      const from = document.getElementById('unitFrom'), to = document.getElementById('unitTo');
-      from.innerHTML=''; to.innerHTML='';
-      unitOptions[type].units.forEach(u=>{ const o1 = document.createElement('option'); o1.value=u; o1.text=u; from.appendChild(o1); const o2 = o1.cloneNode(true); to.appendChild(o2); });
-    }
-    function swapUnits(){ const f=document.getElementById('unitFrom'), t=document.getElementById('unitTo'); const fv=f.value; f.value=t.value; t.value=fv; doUnitConvert(); }
-    function clearUnitFields(){ document.getElementById('unitInput').value=''; document.getElementById('unitResult').innerText=''; }
-    function doUnitConvert(){
-      const val = parseFloat(document.getElementById('unitInput').value);
-      const type = document.getElementById('unitType').value;
-      const from = document.getElementById('unitFrom').value;
-      const to = document.getElementById('unitTo').value;
-      if(isNaN(val)){ alert('Enter a numeric value'); return; }
-      let out='';
-      if(type==='temp'){
-        if(from==='C' && to==='F') out = (val * 9/5 + 32) + ' °F';
-        else if(from==='F' && to==='C') out = ((val - 32) * 5/9) + ' °C';
-        else if(from==='C' && to==='K') out = (val + 273.15) + ' K';
-        else if(from==='K' && to==='C') out = (val - 273.15) + ' °C';
-        else if(from==='F' && to==='K') out = ((val - 32) * 5/9 + 273.15) + ' K';
-        else if(from==='K' && to==='F') out = ((val - 273.15) * 9/5 + 32) + ' °F';
-        else out = val + ' ' + from;
-      } else {
-        const base = unitOptions[type].toBase;
-        const inBase = val * base[from];
-        const converted = inBase / base[to];
-        out = converted + ' ' + to;
-      }
-      document.getElementById('unitResult').innerText = out;
-      addHistory(`Unit: ${val} ${from} → ${out}`);
-    }
-
-    // init unit selects:
-    buildUnitOptions();
-
-    // --- Currency converter (live fetch + fallback) ---
-    const curList = ['USD','EUR','INR','GBP','JPY','AUD','CAD','CNY'];
-    const curFrom = document.getElementById('curFrom'), curTo = document.getElementById('curTo');
-    curList.forEach(c=>{ const o1=document.createElement('option'); o1.value=c; o1.text=c; curFrom.appendChild(o1); curTo.appendChild(o1.cloneNode(true)); });
-    curFrom.value='USD'; curTo.value='INR';
-    let cachedRates = { base:'USD', rates: { USD:1, INR:83.0, EUR:0.92, GBP:0.78, JPY:150, AUD:1.45, CAD:1.34, CNY:7.2 } };
-
-    async function fetchRates(force=false){
-      // fetch from exchangerate.host
-      try{
-        const res = await fetch('https://api.exchangerate.host/latest?base=USD&symbols=' + curList.join(','));
-        if(!res.ok) throw new Error('Fetch failed');
-        const data = await res.json();
-        if(data && data.rates){ cachedRates = { base: data.base, rates: data.rates }; addHistory(`Rates refreshed (${data.date})`); document.getElementById('curResult').innerText = 'Rates updated.'; saveHistory(); return; }
-      }catch(err){
-        console.warn('Rate fetch failed',err);
-        document.getElementById('curResult').innerText = 'Live fetch failed — using fallback rates.';
+        // Evaluate safely
+        let result = Function('"use strict"; return (' + expr + ')')();
+        if (result === Infinity || result === -Infinity || isNaN(result)) {
+          resultLine.innerText = "Error";
+        } else {
+          inputLine.innerText = raw + " =";
+          // Format result: if integer show integer else show trimmed float
+          if (Number.isInteger(result)) resultLine.innerText = String(result);
+          else resultLine.innerText = String(parseFloat(result.toFixed(10))).replace(/\.?0+$/, '');
+          addHistory(raw + " = " + resultLine.innerText);
+        }
+      } catch (e) {
+        resultLine.innerText = "Error";
       }
     }
 
-    // try to fetch once at load (non-blocking)
-    fetchRates().catch(()=>{});
-
-    function clearCurrency(){ document.getElementById('curAmount').value=''; document.getElementById('curResult').innerText=''; }
-
-    function doCurrencyConvert(){
-      const amt = parseFloat(document.getElementById('curAmount').value);
-      if(isNaN(amt)){ alert('Enter numeric amount'); return; }
-      const from = document.getElementById('curFrom').value;
-      const to = document.getElementById('curTo').value;
-      // ensure rate for both exist
-      const rates = cachedRates.rates;
-      if(!rates[from] || !rates[to]){ alert('Rate not available for selected currencies'); return; }
-      // convert via base USD rates object
-      // amount_in_USD = amt / rate_of_from; result = amount_in_USD * rate_of_to
-      const amountInUSD = (from === cachedRates.base) ? amt : (amt / rates[from]);
-      const result = (to === cachedRates.base) ? amountInUSD : (amountInUSD * rates[to]);
-      const out = `${amt} ${from} = ${parseFloat(result.toFixed(6))} ${to}`;
-      document.getElementById('curResult').innerText = out;
-      addHistory(`Currency: ${out}`);
+    function clearDisplay() { inputLine.innerText = ""; resultLine.innerText = "0"; }
+    function backspace() {
+      if (resultLine.innerText !== "Error" && resultLine.innerText.length > 1) {
+        resultLine.innerText = resultLine.innerText.slice(0, -1);
+      } else resultLine.innerText = "0";
+      inputLine.innerText = resultLine.innerText;
     }
 
-    // --- Helpers to show/hide converter panels ---
-    function toggleCurrencyPanel(){ const p=document.getElementById('currencyPanel'); p.style.display = (p.style.display==='block')? 'none' : 'block'; if(p.style.display==='block'){ document.getElementById('extra').classList.add('show'); document.getElementById('moreBtn').innerText='Less'; } }
-    function hideCurrencyPanel(){ document.getElementById('currencyPanel').style.display='none'; }
+    function toggleExtra() {
+      extraDiv.classList.toggle("show");
+      if (extraDiv.classList.contains("show")) moreBtn.innerText = "Less";
+      else { moreBtn.innerText = "More"; hideAgePanel(); }
+    }
 
-    // --- Load initial UI state from storage (theme done above) ---
-    loadSaved();
+    function square() {
+      try {
+        let val = sanitizeExpression(resultLine.innerText);
+        if (!val) { resultLine.innerText = "Error"; return; }
+        val = applyCalculatorPercent(val);
+        let num = Function('"use strict"; return (' + val + ')')();
+        let res = num * num;
+        inputLine.innerText = val + "²";
+        resultLine.innerText = String(res);
+        addHistory(inputLine.innerText + " = " + resultLine.innerText);
+      } catch { resultLine.innerText = "Error"; }
+    }
 
-    // Accessibility: keyboard enter on amount triggers evaluate if focus in keypad? (optional)
-    // --- End script ---
+    function sqrt() {
+      try {
+        let val = sanitizeExpression(resultLine.innerText);
+        if (!val) { resultLine.innerText = "Error"; return; }
+        val = applyCalculatorPercent(val);
+        let num = Function('"use strict"; return (' + val + ')')();
+        if (num < 0) { resultLine.innerText = "Error"; return; }
+        let res = Math.sqrt(num);
+        inputLine.innerText = "√" + val;
+        resultLine.innerText = String(res);
+        addHistory(inputLine.innerText + " = " + resultLine.innerText);
+      } catch { resultLine.innerText = "Error"; }
+    }
+
+    function addHistory(entry) {
+      let div = document.createElement("div");
+      div.className = "history-entry";
+      let safe = entry.replace(/'/g, "\\'");
+      div.innerHTML = `<span>${entry}</span><button class="copy-btn" onclick="copyText('${safe}')">📋</button>`;
+      historyDiv.prepend(div);
+    }
+    function clearHistory() { historyDiv.innerHTML = ""; }
+    function copyText(text) {
+      if (!navigator.clipboard) { alert("Clipboard not supported"); return; }
+      navigator.clipboard.writeText(text);
+      alert("Copied: " + text);
+    }
+
+    /* ========== Age calc (unchanged) ========== */
+    function toggleAgePanel() { agePanel.classList.toggle("show"); if (agePanel.classList.contains("show") && !extraDiv.classList.contains("show")) { extraDiv.classList.add("show"); moreBtn.innerText = "Less"; } }
+    function hideAgePanel() { agePanel.classList.remove("show"); }
+    function fillToday(id) {
+      const d = new Date(); const dd = String(d.getDate()).padStart(2,'0'); const mm = String(d.getMonth()+1).padStart(2,'0'); const yyyy = d.getFullYear();
+      document.getElementById(id).value = dd + mm + yyyy;
+    }
+    function parseDDMMYYYY(str) { if (!/^\d{8}$/.test(str)) return null; const d = parseInt(str.slice(0,2),10); const m = parseInt(str.slice(2,4),10); const y = parseInt(str.slice(4,8),10); if (y < 1000 || y > 9999) return null; if (m < 1 || m > 12) return null; const dt = new Date(y, m-1, d); if (dt.getFullYear() !== y || dt.getMonth() !== (m-1) || dt.getDate() !== d) return null; return dt; }
+    function diffDates(d1, d2) { if (d1 > d2) { const t = d1; d1 = d2; d2 = t; } let y1=d1.getFullYear(), m1=d1.getMonth(), day1=d1.getDate(); let y2=d2.getFullYear(), m2=d2.getMonth(), day2=d2.getDate(); let years=y2-y1, months=m2-m1, days=day2-day1; if (days<0) { const prev = new Date(y2,m2,0); days += prev.getDate(); months -= 1; } if (months<0) { months += 12; years -= 1; } return {years,months,days}; }
+    function calcAgeFromInputs() {
+      const s1=document.getElementById('date1').value.trim(), s2=document.getElementById('date2').value.trim();
+      if(!s1||!s2){ alert('Please enter both dates in DDMMYYYY format.'); return; }
+      const d1=parseDDMMYYYY(s1), d2=parseDDMMYYYY(s2);
+      if(!d1||!d2){ alert('Invalid date format. Use DDMMYYYY (e.g. 05041990).'); return; }
+      const diff=diffDates(d1,d2);
+      const resultText = `Difference: ${diff.years} years, ${diff.months} months, ${diff.days} days`;
+      resultLine.innerText = resultText; inputLine.innerText = `${formatDate(d1)} ↔ ${formatDate(d2)}`; addHistory(`${formatDate(d1)} ↔ ${formatDate(d2)} = ${resultText}`);
+    }
+    function formatDate(d){ const dd=String(d.getDate()).padStart(2,'0'); const mm=String(d.getMonth()+1).padStart(2,'0'); const yy=d.getFullYear(); return `${dd}-${mm}-${yy}`; }
   </script>
 </body>
 </html>
